@@ -9,6 +9,7 @@
 void Simulator::setPrinting(bool toPrint) { printing = toPrint; }
 
 void Simulator::initU() {
+    //initialization doesnt need parallalel programming
     for (SizeType i = 0; i <= (grid - 1); i++) {
         u[(i) * (grid + 1) + grid] = 1.0;
         u[(i) * (grid + 1) + grid - 1] = 1.0;
@@ -19,6 +20,7 @@ void Simulator::initU() {
 }
 
 void Simulator::initV() {
+    //initialization doesnt need parallalel programming
     for (SizeType i = 0; i <= (grid); i++) {
         for (SizeType j = 0; j <= (grid - 1); j++) {
             v[(i)*grid + j] = 0.0;
@@ -27,6 +29,7 @@ void Simulator::initV() {
 }
 
 void Simulator::initP() {
+    //initialization doesnt need parallalel programming
     for (SizeType i = 0; i <= (grid); i++) {
         for (SizeType j = 0; j <= (grid); j++) {
             p[(i) * (grid + 1) + j] = 1.0;
@@ -35,6 +38,7 @@ void Simulator::initP() {
 }
 
 void Simulator::solveUMomentum(const FloatType Re) {
+    #pragma omp parallel for shared(un,u,v)
     for (SizeType i = 1; i <= (grid - 2); i++) {
         for (SizeType j = 1; j <= (grid - 1); j++) {
             un[(i) * (grid + 1) + j] = u[(i) * (grid + 1) + j]
@@ -62,6 +66,7 @@ void Simulator::applyBoundaryU() {
 }
 
 void Simulator::solveVMomentum(const FloatType Re) {
+    #pragma omp parallel for shared(vn,v,u,p)
     for (SizeType i = 1; i <= (grid - 1); i++) {
         for (SizeType j = 1; j <= (grid - 2); j++) {
             vn[(i)*grid + j] = v[(i)*grid + j]
@@ -88,6 +93,7 @@ void Simulator::applyBoundaryV() {
 }
 
 void Simulator::solveContinuityEquationP(const FloatType delta) {
+    #pragma omp parallel for shared(p,pn,un,vn)
     for (SizeType i = 1; i <= (grid - 1); i++) {
         for (SizeType j = 1; j <= (grid - 1); j++) {
             pn[(i) * (grid + 1) + j] = p[(i) * (grid + 1) + j]
@@ -97,11 +103,13 @@ void Simulator::solveContinuityEquationP(const FloatType delta) {
 }
 
 void Simulator::applyBoundaryP() {
+    #pragma omp parallel for
     for (SizeType i = 1; i <= (grid - 1); i++) {
         pn[(i) * (grid + 1) + 0] = pn[(i) * (grid + 1) + 1];
         pn[(i) * (grid + 1) + grid] = pn[(i) * (grid + 1) + grid - 1];
     }
 
+    #pragma omp parallel for
     for (SizeType j = 0; j <= (grid); j++) {
         pn[(0) * (grid + 1) + j] = pn[(1) * (grid + 1) + j];
         pn[(grid) * (grid + 1) + j] = pn[(grid - 1) * (grid + 1) + j];
@@ -111,6 +119,7 @@ void Simulator::applyBoundaryP() {
 Simulator::FloatType Simulator::calculateError() {
     FloatType error = 0.0;
 
+    #pragma omp parallel for reduction(+:error)
     for (SizeType i = 1; i <= (grid - 1); i++) {
         for (SizeType j = 1; j <= (grid - 1); j++) {
             m[(i) * (grid + 1) + j] =
