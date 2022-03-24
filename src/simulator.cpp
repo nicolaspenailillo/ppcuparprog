@@ -92,9 +92,7 @@ void Simulator::applyBoundaryU() {
 }
 
 void Simulator::solveVMomentum(const FloatType Re) {
-    countMap["solveVMomentum"] += 1;
-    auto t1 = std::chrono::high_resolution_clock::now();
-    #pragma omp parallel for shared(vn,v,u,p)
+    #pragma omp parallel for collapse(2)
     for (SizeType i = 1; i <= (grid - 1); i++) {
         for (SizeType j = 1; j <= (grid - 2); j++) {
             vn[(i)*grid + j] = v[(i)*grid + j]

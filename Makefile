@@ -27,7 +27,7 @@ bbuild:
 	cmake --build $(CURDIR)/release --parallel
 
 benchmark: bbuild
-	./release/benchmark/benchacm --benchmark_filter=BM_*
+	./release/benchmark/benchacm --benchmark_filter=BM_solveV*
 
 valgrind: tbuild
 	valgrind -s debug/acm 16
