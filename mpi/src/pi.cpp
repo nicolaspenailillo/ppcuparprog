@@ -36,8 +36,8 @@ int pi(int argc, char* argv[]) {
     }
 
     int all_count;
-    MPI_Allreduce(&count, &all_count, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);// or
-    // MPI_Reduce(&count, &all_count, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+    // MPI_Allreduce(&count, &all_count, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);// or
+    MPI_Reduce(&count, &all_count, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
 
     double pi;

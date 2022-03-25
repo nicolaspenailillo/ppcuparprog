@@ -6,4 +6,4 @@ build:
 	cmake --build $(CURDIR)/release --parallel --verbose
 
 run: build
-	mpirun -np 2 ./release/mpilings
+	mpirun -np 9 ./release/mpilings

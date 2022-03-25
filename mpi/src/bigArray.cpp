@@ -23,9 +23,10 @@ int bigArray(int argc, char* argv[]) {
         my_size = bigsize / numtasks;
     }
     MPI_Bcast(&my_size, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
     myarray.resize(my_size);
     double t1 = MPI_Wtime();
-    MPI_Scatter(&bigarray[0], my_size, MPI_FLOAT, &myarray[0], my_size, MPI_FLOAT, 0, MPI_COMM_WORLD);
+    MPI_Scatter(bigarray.data(), my_size, MPI_FLOAT, &myarray[0], my_size, MPI_FLOAT, 0, MPI_COMM_WORLD);
     double t2 = MPI_Wtime();
     if (rank == 0)
         printf("Time on rank 0 %g\n", t2 - t1);
