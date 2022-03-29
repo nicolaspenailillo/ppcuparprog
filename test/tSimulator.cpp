@@ -22,10 +22,10 @@ protected:
     Simulator getNoisyState(Simulator::SizeType grid) {
         Simulator s{ grid };
         s.deallocate();
-        s.u = generateRandomArray(grid * (grid + 1));
-        s.un = generateRandomArray(grid * (grid + 1));
-        s.v = generateRandomArray(grid * (grid + 1));
-        s.vn = generateRandomArray(grid * (grid + 1));
+        s.u = generateRandomArray((grid + 1) * (grid + 1));
+        s.un = generateRandomArray((grid + 1) * (grid + 1));
+        s.v = generateRandomArray((grid + 1) * (grid + 1));
+        s.vn = generateRandomArray((grid + 1) * (grid + 1));
         s.p = generateRandomArray((grid + 1) * (grid + 1), 0.0);
         s.pn = generateRandomArray((grid + 1) * (grid + 1), 0.0);
         s.m = generateRandomArray((grid + 1) * (grid + 1), 0.0);
@@ -80,10 +80,10 @@ TEST_F(SimulatorGrids, ConstructorValues) {
         EXPECT_DOUBLE_EQ(s.dx, 1.0 / (grid - 1));
         EXPECT_DOUBLE_EQ(s.dy, 1.0 / (grid - 1));
         EXPECT_DOUBLE_EQ(s.dt, 0.001 / ((grid / 128.0 * 2) * (grid / 128.0 * 2)));
-        EXPECT_EQ(s.u.size(), grid * (grid + 1));
-        EXPECT_EQ(s.un.size(), grid * (grid + 1));
-        EXPECT_EQ(s.v.size(), (grid + 1) * grid);
-        EXPECT_EQ(s.vn.size(), (grid + 1) * grid);
+        EXPECT_EQ(s.u.size(), (grid + 1) * (grid + 1));
+        EXPECT_EQ(s.un.size(), (grid + 1) * (grid + 1));
+        EXPECT_EQ(s.v.size(), (grid + 1) * (grid + 1));
+        EXPECT_EQ(s.vn.size(), (grid + 1) * (grid + 1));
         EXPECT_EQ(s.p.size(), (grid + 1) * (grid + 1));
         EXPECT_EQ(s.pn.size(), (grid + 1) * (grid + 1));
         EXPECT_EQ(s.m.size(), (grid + 1) * (grid + 1));
@@ -117,9 +117,9 @@ TEST_F(SimulatorGrids, solveU) {
                                    - s.u[(i - 1) * (grid + 1) + j] * s.u[(i - 1) * (grid + 1) + j])
                                     / 2.0 / s.dx
                                 + 0.25
-                                    * ((s.u[(i) * (grid + 1) + j] + s.u[(i) * (grid + 1) + j + 1]) * (s.v[(i)*grid + j] + s.v[(i + 1) * grid + j])
+                                    * ((s.u[(i) * (grid + 1) + j] + s.u[(i) * (grid + 1) + j + 1]) * (s.v[(i)*(grid + 1) + j] + s.v[(i + 1) *(grid + 1) + j])
                                         - (s.u[(i) * (grid + 1) + j] + s.u[(i) * (grid + 1) + j - 1])
-                                            * (s.v[(i + 1) * grid + j - 1] + s.v[(i)*grid + j - 1]))
+                                            * (s.v[(i + 1) *(grid + 1) + j - 1] + s.v[(i)*(grid + 1) + j - 1]))
                                     / s.dy)
                         - s.dt / s.dx * (s.p[(i + 1) * (grid + 1) + j] - s.p[(i) * (grid + 1) + j])
                         + s.dt * 1.0 / Re
@@ -153,19 +153,19 @@ TEST_F(SimulatorGrids, solveV) {
         s.solveVMomentum(Re);
         for (Simulator::SizeType i = 1; i <= (grid - 1); i++) {
             for (Simulator::SizeType j = 1; j <= (grid - 2); j++) {
-                ASSERT_DOUBLE_EQ(s.vn[(i)*grid + j],
-                    s.v[(i)*grid + j]
+                ASSERT_DOUBLE_EQ(s.vn[(i)*(grid + 1) + j],
+                    s.v[(i)*(grid + 1) + j]
                         - s.dt
                             * (0.25
-                                    * ((s.u[(i) * (grid + 1) + j] + s.u[(i) * (grid + 1) + j + 1]) * (s.v[(i)*grid + j] + s.v[(i + 1) * grid + j])
+                                    * ((s.u[(i) * (grid + 1) + j] + s.u[(i) * (grid + 1) + j + 1]) * (s.v[(i)*(grid + 1) + j] + s.v[(i + 1) *(grid + 1) + j])
                                         - (s.u[(i - 1) * (grid + 1) + j] + s.u[(i - 1) * (grid + 1) + j + 1])
-                                            * (s.v[(i)*grid + j] + s.v[(i - 1) * grid + j]))
+                                            * (s.v[(i)*(grid + 1) + j] + s.v[(i - 1) *(grid + 1) + j]))
                                     / s.dx
-                                + (s.v[(i)*grid + j + 1] * s.v[(i)*grid + j + 1] - s.v[(i)*grid + j - 1] * s.v[(i)*grid + j - 1]) / 2.0 / s.dy)
+                                + (s.v[(i)*(grid + 1) + j + 1] * s.v[(i)*(grid + 1) + j + 1] - s.v[(i)*(grid + 1) + j - 1] * s.v[(i)*(grid + 1) + j - 1]) / 2.0 / s.dy)
                         - s.dt / s.dy * (s.p[(i) * (grid + 1) + j + 1] - s.p[(i) * (grid + 1) + j])
                         + s.dt * 1.0 / Re
-                            * ((s.v[(i + 1) * grid + j] - 2.0 * s.v[(i)*grid + j] + s.v[(i - 1) * grid + j]) / s.dx / s.dx
-                                + (s.v[(i)*grid + j + 1] - 2.0 * s.v[(i)*grid + j] + s.v[(i)*grid + j - 1]) / s.dy / s.dy));
+                            * ((s.v[(i + 1) *(grid + 1) + j] - 2.0 * s.v[(i)*(grid + 1) + j] + s.v[(i - 1) *(grid + 1) + j]) / s.dx / s.dx
+                                + (s.v[(i)*(grid + 1) + j + 1] - 2.0 * s.v[(i)*(grid + 1) + j] + s.v[(i)*(grid + 1) + j - 1]) / s.dy / s.dy));
             }
         }
     }
@@ -176,13 +176,13 @@ TEST_F(SimulatorGrids, boundV) {
         auto s = getNoisyState(grid);
         s.applyBoundaryV();
         for (Simulator::SizeType j = 1; j <= (grid - 2); j++) {
-            ASSERT_DOUBLE_EQ(s.vn[(0) * grid + j], -s.vn[(1) * grid + j]);
-            ASSERT_DOUBLE_EQ(s.vn[(grid)*grid + j], -s.vn[(grid - 1) * grid + j]);
+            ASSERT_DOUBLE_EQ(s.vn[(0) *(grid + 1) + j], -s.vn[(1) *(grid + 1) + j]);
+            ASSERT_DOUBLE_EQ(s.vn[(grid)*(grid + 1) + j], -s.vn[(grid - 1) *(grid + 1) + j]);
         }
 
         for (Simulator::SizeType i = 0; i <= (grid); i++) {
-            ASSERT_DOUBLE_EQ(s.vn[(i)*grid + 0], 0.0);
-            ASSERT_DOUBLE_EQ(s.vn[(i)*grid + grid - 1], 0.0);
+            ASSERT_DOUBLE_EQ(s.vn[(i)*(grid + 1) + 0], 0.0);
+            ASSERT_DOUBLE_EQ(s.vn[(i)*(grid + 1) + grid - 1], 0.0);
         }
     }
 }
@@ -198,7 +198,7 @@ TEST_F(SimulatorGrids, solveP) {
                     s.p[(i) * (grid + 1) + j]
                         - s.dt * delta
                             * ((s.un[(i) * (grid + 1) + j] - s.un[(i - 1) * (grid + 1) + j]) / s.dx
-                                + (s.vn[(i)*grid + j] - s.vn[(i)*grid + j - 1]) / s.dy));
+                                + (s.vn[(i)*(grid + 1) + j] - s.vn[(i)*(grid + 1) + j - 1]) / s.dy));
             }
         }
     }

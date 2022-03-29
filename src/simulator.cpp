@@ -30,8 +30,8 @@ void Simulator::initV() {
     countMap["initV"] += 1;
     auto t1 = std::chrono::high_resolution_clock::now();
     for (SizeType i = 0; i <= (grid); i++) {
-        for (SizeType j = 0; j <= (grid - 1); j++) {
-            v[(i)*grid + j] = 0.0;
+        for (SizeType j = 0; j <= (grid); j++) {
+            v[(i)*(grid + 1) + j] = 0.0;
         }
     }
     auto t2 = std::chrono::high_resolution_clock::now();
@@ -62,8 +62,8 @@ void Simulator::solveUMomentum(const FloatType Re) {
             un[(i) * (grid + 1) + j] = u[(i) * (grid + 1) + j]
                 - dt
                     * ((u[(i + 1) * (grid + 1) + j] * u[(i + 1) * (grid + 1) + j] - u[(i - 1) * (grid + 1) + j] * u[(i - 1) * (grid + 1) + j]) / 2.0 / dx
-                    + 0.25 * ((u[(i) * (grid + 1) + j] + u[(i) * (grid + 1) + j + 1]) * (v[(i)*grid + j] + v[(i + 1) * grid + j])
-                            - (u[(i) * (grid + 1) + j] + u[(i) * (grid + 1) + j - 1]) * (v[(i + 1) * grid + j - 1] + v[(i)*grid + j - 1])) / dy)
+                    + 0.25 * ((u[(i) * (grid + 1) + j] + u[(i) * (grid + 1) + j + 1]) * (v[(i)*(grid + 1) + j] + v[(i + 1) * (grid + 1) + j])
+                            - (u[(i) * (grid + 1) + j] + u[(i) * (grid + 1) + j - 1]) * (v[(i + 1) * (grid + 1) + j - 1] + v[(i)*(grid + 1) + j - 1])) / dy)
                     - dt / dx * (p[(i + 1) * (grid + 1) + j] - p[(i) * (grid + 1) + j]) + dt * 1.0 / Re
                     * ((u[(i + 1) * (grid + 1) + j] - 2.0 * u[(i) * (grid + 1) + j] + u[(i - 1) * (grid + 1) + j]) / dx / dx
                      + (u[(i) * (grid + 1) + j + 1] - 2.0 * u[(i) * (grid + 1) + j] + u[(i) * (grid + 1) + j - 1]) / dy / dy);
@@ -95,13 +95,13 @@ void Simulator::solveVMomentum(const FloatType Re) {
     #pragma omp parallel for collapse(2)
     for (SizeType i = 1; i <= (grid - 1); i++) {
         for (SizeType j = 1; j <= (grid - 2); j++) {
-            vn[(i)*grid + j] = v[(i)*grid + j]
-                - dt * (0.25 * ((u[(i) * (grid + 1) + j] + u[(i) * (grid + 1) + j + 1]) * (v[(i)*grid + j] + v[(i + 1) * grid + j])
-                              - (u[(i - 1) * (grid + 1) + j] + u[(i - 1) * (grid + 1) + j + 1]) * (v[(i)*grid + j] + v[(i - 1) * grid + j])) / dx
-                              + (v[(i)*grid + j + 1] * v[(i)*grid + j + 1] - v[(i)*grid + j - 1] * v[(i)*grid + j - 1]) / 2.0 / dy)
+            vn[(i)*(grid + 1) + j] = v[(i)*(grid + 1) + j]
+                - dt * (0.25 * ((u[(i) * (grid + 1) + j] + u[(i) * (grid + 1) + j + 1]) * (v[(i)*(grid + 1) + j] + v[(i + 1) * (grid + 1) + j])
+                              - (u[(i - 1) * (grid + 1) + j] + u[(i - 1) * (grid + 1) + j + 1]) * (v[(i)*(grid + 1) + j] + v[(i - 1) * (grid + 1) + j])) / dx
+                              + (v[(i)*(grid + 1) + j + 1] * v[(i)*(grid + 1) + j + 1] - v[(i)*(grid + 1) + j - 1] * v[(i)*(grid + 1) + j - 1]) / 2.0 / dy)
                               - dt / dy * (p[(i) * (grid + 1) + j + 1] - p[(i) * (grid + 1) + j]) + dt * 1.0 / Re
-                              * ((v[(i + 1) * grid + j] - 2.0 * v[(i)*grid + j] + v[(i - 1) * grid + j]) / dx / dx
-                              + (v[(i)*grid + j + 1] - 2.0 * v[(i)*grid + j] + v[(i)*grid + j - 1]) / dy / dy);
+                              * ((v[(i + 1) * (grid + 1) + j] - 2.0 * v[(i)*(grid + 1) + j] + v[(i - 1) * (grid + 1) + j]) / dx / dx
+                              + (v[(i)*(grid + 1) + j + 1] - 2.0 * v[(i)*(grid + 1) + j] + v[(i)*(grid + 1) + j - 1]) / dy / dy);
         }
     }
     auto t2 = std::chrono::high_resolution_clock::now();
@@ -113,13 +113,13 @@ void Simulator::applyBoundaryV() {
     countMap["applyBoundaryV"] += 1;
     auto t1 = std::chrono::high_resolution_clock::now();
     for (SizeType j = 1; j <= (grid - 2); j++) {
-        vn[(0) * grid + j] = -vn[(1) * grid + j];
-        vn[(grid)*grid + j] = -vn[(grid - 1) * grid + j];
+        vn[(0) * (grid + 1) + j] = -vn[(1) * (grid + 1) + j];
+        vn[(grid)*(grid + 1) + j] = -vn[(grid - 1) * (grid + 1) + j];
     }
 
     for (SizeType i = 0; i <= (grid); i++) {
-        vn[(i)*grid + 0] = 0.0;
-        vn[(i)*grid + grid - 1] = 0.0;
+        vn[(i)*(grid + 1) + 0] = 0.0;
+        vn[(i)*(grid + 1) + grid - 1] = 0.0;
     }
     auto t2 = std::chrono::high_resolution_clock::now();
     timeMap["applyBoundaryV"] = std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count();
@@ -133,7 +133,7 @@ void Simulator::solveContinuityEquationP(const FloatType delta) {
     for (SizeType i = 1; i <= (grid - 1); i++) {
         for (SizeType j = 1; j <= (grid - 1); j++) {
             pn[(i) * (grid + 1) + j] = p[(i) * (grid + 1) + j]
-                - dt * delta * ((un[(i) * (grid + 1) + j] - un[(i - 1) * (grid + 1) + j]) / dx + (vn[(i)*grid + j] - vn[(i)*grid + j - 1]) / dy);
+                - dt * delta * ((un[(i) * (grid + 1) + j] - un[(i - 1) * (grid + 1) + j]) / dx + (vn[(i)*(grid + 1) + j] - vn[(i)*(grid + 1) + j - 1]) / dy);
         }
     }
     auto t2 = std::chrono::high_resolution_clock::now();
@@ -169,7 +169,7 @@ Simulator::FloatType Simulator::calculateError() {
     for (SizeType i = 1; i <= (grid - 1); i++) {
         for (SizeType j = 1; j <= (grid - 1); j++) {
             m[(i) * (grid + 1) + j] =
-                ((un[(i) * (grid + 1) + j] - un[(i - 1) * (grid + 1) + j]) / dx + (vn[(i)*grid + j] - vn[(i)*grid + j - 1]) / dy);
+                ((un[(i) * (grid + 1) + j] - un[(i - 1) * (grid + 1) + j]) / dx + (vn[(i)*(grid + 1) + j] - vn[(i)*(grid + 1) + j - 1]) / dy);
             error += fabs(m[(i) * (grid + 1) + j]);
         }
     }
@@ -200,7 +200,7 @@ void Simulator::iterateV() {
     std::swap(v, vn);
     // for (SizeType i = 0; i <= (grid); i++) {
     //     for (SizeType j = 0; j <= (grid - 1); j++) {
-    //         v[(i)*grid + j] = vn[(i)*grid + j];
+    //         v[(i)*(grid + 1) + j] = vn[(i)*(grid + 1) + j];
     //     }
     // }
     auto t2 = std::chrono::high_resolution_clock::now();
@@ -239,10 +239,10 @@ Simulator::Simulator(SizeType gridP)
       dx(1.0 / static_cast<FloatType>(grid - 1)),
       dy(1.0 / static_cast<FloatType>(grid - 1)),
       dt(0.001 / std::pow(grid / 128.0 * 2.0, 2.0)),
-      u(grid * (grid + 1)),
-      un(grid * (grid + 1)),
-      v((grid + 1) * grid),
-      vn((grid + 1) * grid),
+      u((grid + 1) * (grid + 1)),
+      un((grid + 1) * (grid + 1)),
+      v((grid + 1) * (grid + 1)),
+      vn((grid + 1) * (grid + 1)),
       p((grid + 1) * (grid + 1)),
       pn((grid + 1) * (grid + 1)),
       m((grid + 1) * (grid + 1)) {
