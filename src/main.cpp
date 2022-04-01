@@ -4,9 +4,10 @@
 #include <optional>
 #include <stdlib.h>
 #include "omp.h"
+#include "MPIHandler.hpp"
 
 int main(int argc, char** argv) {
-    MPI_Init(&argc, &argv);
+    MPIHandler::getInstance()->setArgs(argc, argv);
     // Size from command line if specified
     Simulator::SizeType grid = 256;
     if (argc > 1) {
@@ -37,5 +38,4 @@ int main(int argc, char** argv) {
         fmt::print("There is no maximum steps, it will run until it goes into a steady state");
         s.run(4.5, 100.0);
     }
-    MPI_Finalize();
 }

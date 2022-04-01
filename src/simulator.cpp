@@ -5,7 +5,8 @@
 #include <fstream>
 #include <iostream>
 #include <limits>
-#include <chrono>
+#include <mpi.h>
+#include "MPIHandler.hpp"
 
 void Simulator::setPrinting(bool toPrint) { printing = toPrint; }
 
@@ -246,21 +247,7 @@ Simulator::Simulator(SizeType gridP)
       p((grid + 1) * (grid + 1)),
       pn((grid + 1) * (grid + 1)),
       m((grid + 1) * (grid + 1)) {
-
-    functionNames = std::vector<std::string>{
-        "initU", "initV", "initP",
-        "solveUMomentum", "applyBoundaryU", "solveVMomentum",
-        "applyBoundaryV", "solveContinuityEquationP",
-        "applyBoundaryP", "calculateError",
-        "iterateU", "iterateV", "iterateP"
-        };
-    for (size_t i = 0; i < functionNames.size(); i++)
-    {
-        countMap[functionNames[i]]=0;
-        timeMap[functionNames[i]]=0.0;
-        bytesMovMap[functionNames[i]]=0;
-    }
-
+    MPIHandler::getInstance()->handleMPIResource();
     initU();
     initV();
     initP();
