@@ -12,7 +12,7 @@ public:
     typedef double FloatType;
 
     // these should be a private section (until constructor), but for testing and benchmarking we keep it public
-    const SizeType grid;
+    SizeType grid;
     const FloatType dx, dy, dt;
     std::vector<FloatType> u, un, v, vn, p, pn, m;
 

@@ -1,13 +1,14 @@
 #include "MPIHandler.hpp"
+#include "fmt/core.h"
 #include <mpi.h>
 
-const char* MPIHandler::NotInited::what() const noexcept {
-    return "ProgramArgs singleton class was not inited with the program args";
-}
+const char* MPIHandler::NotInited::what() const noexcept { return "ProgramArgs singleton class was not inited with the program args"; }
 
 MPIHandler::~MPIHandler() {
-    if(MPI::Is_initialized() && !MPI::Is_finalized()) {
-        MPI::Finalize();
+    MPI_Initialized(&inited);
+    MPI_Finalized(&finalized);
+    if (inited && !finalized) {
+        MPI_Finalize();
     }
 }
 
@@ -16,16 +17,16 @@ MPIHandler* MPIHandler::getInstance() {
     return &instance;
 }
 
-void MPIHandler::setArgs(int argc, char** argv) {
-    args = std::make_pair(argc, argv);
-}
+void MPIHandler::setArgs(int argc, char** argv) { args = std::make_pair(argc, argv); }
 
-void MPIHandler::handleMPIResource() const {
-    if(args) {
-        auto[argc, argv] = args.value();
-        if(!MPI::Is_initialized()) {
-            MPI::Init(argc, argv);
+void MPIHandler::handleMPIResource() {
+    if (args) {
+        auto [argc, argv] = args.value();
+        MPI_Initialized(&inited);
+        if (!inited) {
+            MPI_Init(&argc, &argv);
         }
+    } else {
+        throw NotInited{};
     }
-    throw NotInited{};
 }

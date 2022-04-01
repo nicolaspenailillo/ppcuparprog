@@ -5,6 +5,8 @@
 
 class MPIHandler {
     std::optional<std::pair<int, char**>> args;
+    int inited;
+    int finalized;
 
     MPIHandler() = default;
     ~MPIHandler();
@@ -20,5 +22,5 @@ public:
 
     [[nodiscard]] static MPIHandler* getInstance();
     void setArgs(int argc, char** argv);
-    void handleMPIResource() const;
+    void handleMPIResource();
 };
