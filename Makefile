@@ -2,7 +2,7 @@
 
 build:
 	cmake -E make_directory $(CURDIR)/release
-	cmake -S $(CURDIR) -B $(CURDIR)/release -DCMAKE_BUILD_TYPE=Release -DUSE_WARNINGS=ON -DENABLE_TESTING=OFF -DENABLE_BENCHMARK=OFF
+	cmake -S $(CURDIR) -B $(CURDIR)/release -DCMAKE_BUILD_TYPE=Release -DUSE_WARNINGS=OFF -DENABLE_TESTING=OFF -DENABLE_BENCHMARK=OFF
 	cmake --build $(CURDIR)/release --parallel
 
 run: build
@@ -15,7 +15,7 @@ clean:
 
 tbuild:
 	cmake -E make_directory $(CURDIR)/debug
-	cmake -S $(CURDIR) -B $(CURDIR)/debug -DCMAKE_BUILD_TYPE=Debug -DUSE_WARNINGS=ON -DENABLE_TESTING=ON
+	cmake -S $(CURDIR) -B $(CURDIR)/debug -DCMAKE_BUILD_TYPE=Debug -DUSE_WARNINGS=OFF -DENABLE_TESTING=ON
 	cmake --build $(CURDIR)/debug --parallel
 
 test: tbuild
@@ -23,7 +23,7 @@ test: tbuild
 
 bbuild:
 	cmake -E make_directory $(CURDIR)/release
-	cmake -S $(CURDIR) -B $(CURDIR)/release -DCMAKE_BUILD_TYPE=Release -DUSE_WARNINGS=ON -DENABLE_TESTING=OFF -DENABLE_BENCHMARK=ON
+	cmake -S $(CURDIR) -B $(CURDIR)/release -DCMAKE_BUILD_TYPE=Release -DUSE_WARNINGS=OFF -DENABLE_TESTING=OFF -DENABLE_BENCHMARK=ON
 	cmake --build $(CURDIR)/release --parallel
 
 benchmark: bbuild
