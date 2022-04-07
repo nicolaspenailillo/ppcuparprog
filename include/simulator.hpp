@@ -16,11 +16,6 @@ public:
     const FloatType dx, dy, dt;
     std::vector<FloatType> u, un, v, vn, p, pn, m;
 
-    std::vector<std::string> functionNames;
-    std::map<std::string, int> countMap;
-    std::map<std::string, long int> timeMap;
-    std::map<std::string, long uint> bytesMovMap;
-
     // helper functions for constructor
     void initU();
     void initV();
