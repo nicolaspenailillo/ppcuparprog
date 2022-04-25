@@ -6,8 +6,6 @@
 #include <iostream>
 #include <limits>
 #include <mpi.h>
-#include "MPIHandler.hpp"
-#include "MPILaplace.hpp"
 
 void Simulator::setPrinting(bool toPrint) { printing = toPrint; }
 
@@ -188,8 +186,6 @@ Simulator::Simulator(SizeType gridP)
       dx(1.0 / static_cast<FloatType>(grid - 1)),
       dy(1.0 / static_cast<FloatType>(grid - 1)),
       dt(0.001 / std::pow(grid / 128.0 * 2.0, 2.0)) {
-    MPIHandler::getInstance()->handleMPIResource();
-    MPISetup(&grid, &grid);
 
     u.resize((grid + 1) * (grid + 1));
     un.resize((grid + 1) * (grid + 1));

@@ -1,7 +1,8 @@
 {
     "cmake.configureSettings": {
         "ENABLE_TESTING": "ON",
-        "ENABLE_BENCHMARK": "ON"
+        "ENABLE_BENCHMARK": "ON",
+        "CMAKE_CXX_COMPILER": "nvc++"
     },
     "cmake.debugConfig": {
         "args": ["16", "2000"]

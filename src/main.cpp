@@ -4,10 +4,8 @@
 #include <optional>
 #include <stdlib.h>
 #include "omp.h"
-#include "MPIHandler.hpp"
 
 int main(int argc, char** argv) {
-    MPIHandler::getInstance()->setArgs(argc, argv);
     // Size from command line if specified
     Simulator::SizeType grid = 256;
     if (argc > 1) {

@@ -34,11 +34,48 @@ FetchContent_MakeAvailable(fmtfetch)
 find_package(OpenMP REQUIRED)
 find_package(MPI REQUIRED)
 
-# creating the main executable and include the CMakeList file from src to include and link all the files
-include_directories(SYSTEM ${MPI_INCLUDE_PATH})
 add_executable(${MAIN_BINARY} src/main.cpp)
 add_library(${SRC_LIBRARY})
-target_link_libraries(${SRC_LIBRARY} PUBLIC project_warnings fmt::fmt OpenMP::OpenMP_CXX ${MPI_CXX_LIBRARIES})
+
+# GPU section
+find_package(OpenACC REQUIRED)
+# include(cmake/mycudautils.cmake)
+# set(ARCHITECTURE
+#     "AUTO"
+#     CACHE STRING "Your target CUDA architecture")
+# select_cuda_architectures("${ARCHITECTURE}" ARCH_LIST)
+# message(STATUS "CUDA_ARCH: ${ARCH_LIST}")
+# set(CMAKE_CUDA_ARCHITECTURES
+#     "${ARCH_LIST}"
+#     CACHE STRING "CUDA architectures" FORCE)
+
+# function(CUDA_CONVERT_FLAGS EXISTING_TARGET)
+#     get_property(
+#         old_flags
+#         TARGET ${EXISTING_TARGET}
+#         PROPERTY INTERFACE_COMPILE_OPTIONS)
+#     if(NOT "${old_flags}" STREQUAL "")
+#         string(REPLACE ";" "," CUDA_flags "${old_flags}")
+#         set_property(
+#             TARGET ${EXISTING_TARGET}
+#             PROPERTY
+#                 INTERFACE_COMPILE_OPTIONS
+#                 "$<$<BUILD_INTERFACE:$<COMPILE_LANGUAGE:CXX>>:${old_flags}>$<$<BUILD_INTERFACE:$<COMPILE_LANGUAGE:CUDA>>:-Xcompiler=${CUDA_flags}>"
+#         )
+#     endif()
+# endfunction()
+
+# enable_language(CUDA)
+# cuda_convert_flags(project_warnings)
+# set_target_properties(${SRC_LIBRARY} PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+# set(OpenACC_CXX_FLAGS "${OpenACC_CXX_FLAGS} -acc -fast -Minfo=acce")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -acc -fast -Minfo=acce")
+
+# creating the main executable and include the CMakeList file from src to include and link all the files
+include_directories(SYSTEM ${MPI_INCLUDE_PATH})
+target_link_libraries(${SRC_LIBRARY} PUBLIC project_warnings fmt::fmt OpenMP::OpenMP_CXX ${MPI_CXX_LIBRARIES} OpenACC::OpenACC_CXX)
+# set_target_properties(${SRC_LIBRARY} PROPERTIES LINKER_LANGUAGE CUDA)
+# set_target_properties(${SRC_LIBRARY} PROPERTIES LANGUAGE CUDA)
 include(src/CMakeLists.txt)
 
 # Testing section
