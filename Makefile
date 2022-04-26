@@ -7,7 +7,7 @@ build:
 	cmake --build $(CURDIR)/release --verbose
 
 run: build
-	mpirun -np 4 ./release/acm 128 2000
+	./release/acm 128 2000
 
 clean:
 	$(MAKE) -C release clean
@@ -20,7 +20,7 @@ tbuild:
 	cmake --build $(CURDIR)/debug --parallel
 
 test: tbuild
-	mpirun -np 4 debug/test/testacm
+	./debug/test/testacm
 
 bbuild:
 	cmake -E make_directory $(CURDIR)/release
