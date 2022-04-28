@@ -36,10 +36,6 @@ void Simulator::initP() {
 }
 
 void Simulator::solveUMomentum(const FloatType Re) {
-;
-    exchangeHalo(grid,grid,p.data());
-    exchangeHalo(grid,grid,u.data());
-    exchangeHalo(grid,grid,v.data());
     for (SizeType i = 1; i <= (grid - 2); i++) {
         for (SizeType j = 1; j <= (grid - 1); j++) {
             un[(i) * (grid + 1) + j] = u[(i) * (grid + 1) + j]
@@ -55,7 +51,6 @@ void Simulator::solveUMomentum(const FloatType Re) {
 }
 
 void Simulator::applyBoundaryU() {
-    exchangeHalo(grid,grid,un.data());
     for (SizeType j = 1; j <= (grid - 1); j++) {
         un[(0) * (grid + 1) + j] = 0.0;
         un[(grid - 1) * (grid + 1) + j] = 0.0;
@@ -68,11 +63,6 @@ void Simulator::applyBoundaryU() {
 }
 
 void Simulator::solveVMomentum(const FloatType Re) {
-
-    exchangeHalo(grid,grid,p.data());
-    exchangeHalo(grid,grid,u.data());
-    exchangeHalo(grid,grid,v.data());
-
     #pragma omp parallel for collapse(2)
     for (SizeType i = 1; i <= (grid - 1); i++) {
         for (SizeType j = 1; j <= (grid - 2); j++) {
@@ -123,21 +113,13 @@ void Simulator::applyBoundaryP() {
 Simulator::FloatType Simulator::calculateError() {
     FloatType error = 0.0;
 
-
-    exchangeHalo(grid,grid,un.data());
-    exchangeHalo(grid,grid,vn.data());
-
     for (SizeType i = 1; i <= (grid - 1); i++) {
         for (SizeType j = 1; j <= (grid - 1); j++) {
             m[(i) * (grid + 1) + j] =
                 ((un[(i) * (grid + 1) + j] - un[(i - 1) * (grid + 1) + j]) / dx + (vn[(i)*(grid + 1) + j] - vn[(i)*(grid + 1) + j - 1]) / dy);
-            error = fabs(m[(i) * (grid + 1) + j]);
+            error += fabs(m[(i) * (grid + 1) + j]);
         }
     }
-
-    double error_g;
-    MPI_Allreduce(&error, &error_g, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
-    error = error_g;
 
     return error;
 }
